@@ -1,185 +1,113 @@
 # Deployment Guide for ISM Ministers Prayer Network
 
-## Option 1: Vercel (Free Tier)
+## Free Hosting Options
 
-### Prerequisites
-- Vercel account (sign up with GitHub)
-- GitHub repository: https://github.com/stephenchad/ism-ministers-prayer-network
+### Option 1: InfinityFree (Recommended)
 
-### ⚠️ Limitations of Vercel with Laravel
-- **No persistent file storage** (uploads won't persist)
-- **No PostgreSQL database** (need external database)
-- **No cron jobs**
-- Best for **static/demo sites**
+**Features:**
+- ✅ Free PHP 8.x hosting
+- ✅ Free MySQL database
+- ✅ Unlimited bandwidth
+- ✅ 5GB disk space
+- ✅ Free SSL
+- ✅ No ads
 
-### Step 1: Create Vercel Account
-1. Go to [vercel.com](https://vercel.com)
-2. Sign up with **GitHub**
-3. Verify email
+**Setup:**
 
-### Step 2: Import Project
-1. Click **"Add New..."** → **"Project"**
-2. Import your GitHub repo
-3. Configure:
-   - **Framework Preset**: `Other`
-   - **Build Command**: (leave empty)
-   - **Output Directory**: `public`
-4. Click **"Deploy"**
+1. **Create Account**
+   - Go to [infinityfree.net](https://infinityfree.net)
+   - Sign up for free account
+   - Verify email
 
-### Step 3: Add Environment Variables
-1. Go to **Settings** → **Environment Variables**
-2. Add:
-   ```
+2. **Create Website**
+   - Click **"Get Free Hosting"**
+   - Enter your desired subdomain: `yoursite.epizy.com`
+   - Complete registration
+
+3. **Upload Files**
+   - Go to **"File Manager"** in InfinityFree
+   - Upload all project files to `/htdocs` folder
+   - Important: Upload `.env` file with your settings
+
+4. **Create Database**
+   - Go to **"MySQL Databases"**
+   - Create new database (name, username, password)
+   - Note the credentials
+
+5. **Import Database**
+   - Go to **"phpMyAdmin"**
+   - Import your local database SQL file
+
+6. **Configure .env**
+   ```env
    APP_NAME=ISM Ministers Prayer Network
    APP_ENV=production
    APP_DEBUG=false
-   APP_KEY= (run `php artisan key:generate` locally, paste here)
-   DB_CONNECTION=pgsql
+   APP_KEY= (generate locally: php artisan key:generate)
+   APP_URL=https://yoursite.epizy.com
+
+   DB_CONNECTION=mysql
+   DB_HOST=localhost
+   DB_PORT=3306
+   DB_DATABASE=your_db_name
+   DB_USERNAME=your_db_user
+   DB_PASSWORD=your_db_password
    ```
 
-### ⚠️ Important: Database Required
-Vercel doesn't provide databases. Use:
-- **Neon** (free PostgreSQL)
-- **Supabase** (free PostgreSQL)
-- **Railway** (PostgreSQL - had free tier)
+7. **Visit Your Site**
+   - Go to `https://yoursite.epizy.com`
 
 ---
 
-## Option 2: Coolify (Self-Hosted Free)
+### Option 2: HelioHost
 
-Coolify is open-source, you host it on your own server.
+**Features:**
+- ✅ Free PHP hosting
+- ✅ Free MySQL database
+- ✅ cPanel access
+- ✅ Good performance
 
-### Prerequisites
-- VPS server ($4-10/month) from DigitalOcean, Hetzner, Linode
-- SSH access to server
+**Setup:**
 
-### Installation
-```bash
-# SSH into your server
-ssh root@your-server-ip
+1. **Request Hosting**
+   - Go to [heliohost.org](https://heliohost.org)
+   - Click **"Request Hosting"**
+   - Choose **"Tommy"** (free tier)
+   - Fill in your details
 
-# Install Coolify
-bash <(curl -fsSL get.coolify.io)
-```
+2. **Wait for Activation**
+   - Usually takes a few hours
+   - You'll receive email with login details
 
-### Setup
-1. Access Coolify at `https://your-server-ip`
-2. Create admin account
-3. Click **"Add New Project"**
-4. Import from GitHub
-5. Configure:
-   - **Type**: Laravel (PHP)
-   - **Database**: PostgreSQL
-   - **Domains**: your-domain.com
+3. **Upload via File Manager**
+   - Use the provided URL to access cPanel
+   - Upload files via File Manager
+   - Import database via phpMyAdmin
 
 ---
 
-## Option 3: DigitalOcean VPS ($4/month)
+### Option 3: 000WebHost
 
-### Step 1: Create Droplet
-1. Go to [digitalocean.com](https://digitalocean.com)
-2. Create **"Droplet"**
-3. Choose:
-   - **Image**: Ubuntu 22.04 LTS
-   - **Size**: Basic ($4/month - 1GB RAM)
-   - **Region**: Near your users
+**Features:**
+- ✅ Free PHP hosting
+- ✅ Free MySQL database
+- ✅ Easy 1-click install
 
-### Step 2: Connect via SSH
-```bash
-ssh root@your-droplet-ip
-```
+**Setup:**
 
-### Step 3: Install Laravel Stack
-```bash
-# Update
-apt update && apt upgrade -y
+1. **Create Account**
+   - Go to [000webhost.com](https://000webhost.com)
+   - Sign up for free
 
-# Install Nginx
-apt install nginx -y
+2. **Create Site**
+   - Click **"Create New Site"**
+   - Upload files or use website builder
 
-# Install PHP 8.2
-apt install software-properties-common -y
-add-apt-repository ppa:ondrej/php -y
-apt update
-apt install php8.2 php8.2-fpm php8.2-mbstring php8.2-xml php8.2-curl php8.2-pgsql php8.2-redis -y
+3. **Database**
+   - Go to **"Tools"** → **"Database"**
+   - Create MySQL database
 
-# Install PostgreSQL
-apt install postgresql postgresql-contrib -y
-
-# Install Composer
-curl -sS https://getcomposer.org/installer | php
-mv composer.phar /usr/local/bin/composer
-
-# Install Git
-apt install git -y
-```
-
-### Step 4: Configure Laravel
-```bash
-# Create directory
-mkdir -p /var/www/ism-prayer
-cd /var/www/ism-prayer
-
-# Clone repo
-git clone https://github.com/stephenchad/ism-ministers-prayer-network.git .
-
-# Install dependencies
-composer install --no-interaction --prefer-dist --optimize-autoloader
-
-# Copy env file
-cp .env.example .env
-php artisan key:generate
-
-# Configure .env for PostgreSQL
-nano .env
-# Update DB_* variables
-
-# Run migrations
-php artisan migrate --force
-
-# Set permissions
-chmod -R 775 storage bootstrap/cache
-chown -R www-data:www-data /var/www/ism-prayer
-```
-
-### Step 5: Configure Nginx
-```bash
-nano /etc/nginx/sites-available/ism-prayer
-```
-
-Add configuration:
-```nginx
-server {
-    listen 80;
-    server_name your-domain.com;
-    root /var/www/ism-prayer/public;
-    index index.php;
-
-    location / {
-        try_files $uri $uri/ /index.php?$query_string;
-    }
-
-    location ~ \.php$ {
-        include snippets/fastcgi-php.conf;
-        fastcgi_pass unix:/run/php/php8.2-fpm.sock;
-    }
-
-    location ~ /\.ht {
-        deny all;
-    }
-}
-```
-
-```bash
-# Enable site
-ln -s /etc/nginx/sites-available/ism-prayer /etc/nginx/sites-enabled/
-nginx -t
-systemctl reload nginx
-
-# Setup SSL (optional)
-apt install certbot python3-certbot-nginx
-certbot --nginx -d your-domain.com
-```
+**Note:** Free tier has no HTTPS and displays ads.
 
 ---
 
@@ -187,9 +115,62 @@ certbot --nginx -d your-domain.com
 
 ```bash
 cd /Applications/XAMPP/xamppfiles/htdocs/ism_ministers_prayer_network
+
+# Install dependencies
 composer install
+
+# Setup environment
 cp .env.example .env
 php artisan key:generate
+
+# Setup database
 php artisan migrate:fresh --seed
+
+# Start server
 php artisan serve
 ```
+
+---
+
+## Moving from Local to Live
+
+### Step 1: Export Local Database
+1. Go to phpMyAdmin (localhost)
+2. Select your database
+3. Click **"Export"** → **"Go"**
+4. Save the `.sql` file
+
+### Step 2: Upload Files
+1. Connect via FTP/File Manager
+2. Upload all files EXCEPT `/vendor` and `/node_modules`
+3. Upload `.env` file with live settings
+
+### Step 3: Import Database
+1. Go to live phpMyAdmin
+2. Create new database
+3. Click **"Import"**
+4. Upload your local `.sql` file
+
+### Step 4: Install Dependencies on Server
+If you have SSH access:
+```bash
+composer install --no-dev --optimize-autoloader
+```
+
+---
+
+## Troubleshooting
+
+### "500 Internal Server Error"
+- Check `.env` file exists and has correct credentials
+- Run `php artisan config:clear`
+- Check file permissions: `chmod -R 755 storage bootstrap/cache`
+
+### Database Connection Failed
+- Verify `DB_*` variables in `.env`
+- Check database user has permissions
+- Ensure database exists
+
+### Blank White Page
+- Enable debug: `APP_DEBUG=true` temporarily
+- Check PHP error logs
