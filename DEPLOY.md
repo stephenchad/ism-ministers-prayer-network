@@ -1,61 +1,96 @@
 # Deployment Guide for ISM Ministers Prayer Network
 
-## Railway Deployment
+## Render.com Free Tier Deployment
 
-### 1. Setup on Railway
+### Prerequisites
+- GitHub account with repository: https://github.com/stephenchad/ism-ministers-prayer-network
+- Free Render.com account
 
-1. Create a new project on [Railway](https://railway.app)
+### Step 1: Create Render Account
+
+1. Go to [render.com](https://render.com) and sign up with GitHub
+2. Verify your email
+
+### Step 2: Create New Web Service
+
+1. Click **"New +"** → **"Web Service"**
 2. Connect your GitHub repository
-3. Add a PostgreSQL database
-4. Add Environment Variables:
+3. Configure:
+   - **Name**: `ism-prayer-network`
+   - **Environment**: `PHP`
+   - **Build Command**: (leave empty - uses render.yaml)
+   - **Start Command**: (leave empty - uses render.yaml)
+4. Click **"Create Web Service"**
 
-```
-APP_NAME="ISM Ministers Prayer Network"
-APP_ENV=production
-APP_KEY=base64:... (generate using "Generate" button)
-APP_DEBUG=false
-APP_URL=https://your-app.railway.app
+### Step 3: Add PostgreSQL Database
 
-DB_CONNECTION=pgsql
-DB_HOST=/cloudsql/...
-DB_PORT=5432
-DB_DATABASE=...
-DB_USER=...
-DB_PASSWORD=...
+1. Click **"New +"** → **"PostgreSQL"**
+2. Configure:
+   - **Name**: `ism-prayer-db`
+   - **Plan**: `Free`
+   - **Region**: `Ohio` (or nearest to you)
+3. Click **"Create Database"**
 
-CACHE_DRIVER=file
-FILESYSTEM_DISK=local
-```
+### Step 4: Connect Database to Web Service
 
-### 2. Deploy
+1. Go to your **Web Service** → **"Environment"** tab
+2. Add these variables (delete duplicates):
+   ```
+   APP_NAME=ISM Ministers Prayer Network
+   APP_ENV=production
+   APP_DEBUG=false
+   APP_KEY= (click "Generate" button)
+   ```
+3. For database connection, Render auto-links them. Add:
+   ```
+   DB_CONNECTION=pgsql
+   DB_HOST= (from PostgreSQL service - Internal URL)
+   DB_PORT=5432
+   DB_DATABASE= (from PostgreSQL service)
+   DB_USER= (from PostgreSQL service)
+   DB_PASSWORD= (from PostgreSQL service)
+   ```
 
-1. Click "Deploy Now" on Railway dashboard
-2. The Procfile will automatically:
-   - Create storage directories
-   - Set proper permissions
-   - Start the PHP server
+### Step 5: Deploy
 
-### 3. Database Setup
+1. Go to your **Web Service**
+2. Click **"Deploy"** (manual) or wait for auto-deploy
+3. Watch **"Logs"** for progress
 
-In Railway Shell, run:
-```bash
-php artisan migrate --force
-```
+### Step 6: Run Database Migration
 
-### 4. Optional: Cache Configuration
+1. Click **"Shell"** in your web service
+2. Run:
+   ```bash
+   php artisan migrate --force
+   ```
 
-After deployment, in Railway Shell:
-```bash
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
-```
+### Step 7: Visit Your App
+
+1. Click the **URL** shown in your web service (e.g., `https://ism-prayer-network.onrender.com`)
+
+---
+
+## Troubleshooting
+
+### "Please provide a valid cache path"
+Fixed by the `mkdir` commands in render.yaml build command.
+
+### Database connection failed
+Ensure `DB_*` variables match your PostgreSQL service's Internal URL.
+
+### 500 Error
+Check logs in Render dashboard. Common issues:
+- Missing APP_KEY
+- Database not migrated
+- Storage permissions
 
 ---
 
 ## Local Development (XAMPP)
 
 ```bash
+cd /Applications/XAMPP/xamppfiles/htdocs/ism_ministers_prayer_network
 composer install
 cp .env.example .env
 php artisan key:generate
@@ -65,13 +100,18 @@ php artisan serve
 
 ---
 
-## Troubleshooting
+## Useful Commands
 
-### "Please provide a valid cache path"
-The storage directories need to exist. Procfile now handles this automatically.
+```bash
+# Clear all caches
+php artisan config:clear
+php artisan cache:clear
+php artisan route:clear
+php artisan view:clear
 
-### PSR-4 Namespace Error
-Controllers are in `App\Http\Controllers\Admin` (capital A). Make sure all controllers use this namespace.
+# Recreate storage links
+php artisan storage:link
 
-### Missing Environment Variables
-Ensure all variables are set in Railway dashboard, especially `APP_KEY`.
+# Seed database
+php artisan db:seed
+```
