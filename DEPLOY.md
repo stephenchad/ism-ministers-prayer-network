@@ -1,119 +1,77 @@
-# Deployment Guide
+# Deployment Guide for ISM Ministers Prayer Network
 
-## 🚂 Deploy to Railway (Recommended)
+## Railway Deployment
 
-### Step 1: Create Account
-1. Go to [Railway.app](https://railway.app)
-2. Sign up with **GitHub**
+### 1. Setup on Railway
 
-### Step 2: Deploy
-1. Go to [Railway Dashboard](https://railway.app/dashboard)
-2. Click **"New Project"**
-3. Select **"Deploy from GitHub repo"**
-4. Search for: `stephenchad/ism-ministers-prayer-network`
-5. Click **"Deploy"**
+1. Create a new project on [Railway](https://railway.app)
+2. Connect your GitHub repository
+3. Add a PostgreSQL database
+4. Add Environment Variables:
 
-### Step 3: Add PostgreSQL
-1. In your project dashboard, click **"New +"**
-2. Select **"Database"** → **"PostgreSQL"**
-3. Wait for creation (~2 minutes)
-4. Click **"Connect"** → **"Variables"**
-5. Copy the `DATABASE_URL`
-
-### Step 4: Configure Environment
-1. Go to your project → **"Variables"** tab
-2. Add these variables:
-   ```env
-   APP_NAME=ISM Ministers Prayer Network
-   APP_ENV=production
-   APP_DEBUG=false
-   APP_KEY= # Click "Add" then "Generate" button
-   APP_URL= # Your Railway URL (shown after deploy)
-   DB_CONNECTION=pgsql
-   DATABASE_URL= # Already added from PostgreSQL
-   ```
-
-### Step 5: Deploy
-1. Go to **"Deployments"** tab
-2. Click **"Deploy Now"**
-
-### Step 6: Run Migrations
-1. Go to **"Networking"** → **"Shell"**
-2. Run:
-   ```bash
-   php artisan migrate --force
-   ```
-
----
-
-## 🔧 Environment Variables
-
-**Required:**
 ```
-APP_NAME=ISM Ministers Prayer Network
+APP_NAME="ISM Ministers Prayer Network"
 APP_ENV=production
+APP_KEY=base64:... (generate using "Generate" button)
 APP_DEBUG=false
-APP_KEY= (Generate in Railway dashboard)
-APP_URL= (Your Railway URL)
+APP_URL=https://your-app.railway.app
+
 DB_CONNECTION=pgsql
-DATABASE_URL= (From PostgreSQL)
+DB_HOST=/cloudsql/...
+DB_PORT=5432
+DB_DATABASE=...
+DB_USER=...
+DB_PASSWORD=...
+
+CACHE_DRIVER=file
+FILESYSTEM_DISK=local
 ```
 
-**Optional:**
-```
-MAIL_MAILER=smtp
-MAIL_HOST=smtp.mailtrap.io
-MAIL_PORT=2525
-MAIL_USERNAME=your_username
-MAIL_PASSWORD=your_password
-MAIL_ENCRYPTION=tls
-MAIL_FROM_ADDRESS=noreply@yourdomain.com
-MAIL_FROM_NAME=ISM Prayer Network
+### 2. Deploy
 
-GOOGLE_CLIENT_ID=xxx
-GOOGLE_CLIENT_SECRET=xxx
+1. Click "Deploy Now" on Railway dashboard
+2. The Procfile will automatically:
+   - Create storage directories
+   - Set proper permissions
+   - Start the PHP server
 
-FACEBOOK_CLIENT_ID=xxx
-FACEBOOK_CLIENT_SECRET=xxx
+### 3. Database Setup
+
+In Railway Shell, run:
+```bash
+php artisan migrate --force
 ```
 
----
+### 4. Optional: Cache Configuration
 
-## ✅ After Deployment
-
-In Railway Shell:
+After deployment, in Railway Shell:
 ```bash
 php artisan config:cache
 php artisan route:cache
-chmod -R 755 storage bootstrap/cache
+php artisan view:cache
 ```
 
 ---
 
-## 🔍 Troubleshooting
-
-| Error | Solution |
-|-------|----------|
-| Database connection failed | Check DATABASE_URL format |
-| APP_KEY missing | Generate in Variables tab |
-| 500 Error | Check logs in Railway dashboard |
-| Static assets not loading | Run `php artisan route:cache` |
-
----
-
-## 📝 Quick Commands (Railway Shell)
+## Local Development (XAMPP)
 
 ```bash
-# View logs
-railway logs
-
-# Open shell
-railway run bash
-
-# Restart
-railway up
+composer install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate:fresh --seed
+php artisan serve
 ```
 
 ---
 
-**Repository:** https://github.com/stephenchad/ism-ministers-prayer-network
+## Troubleshooting
+
+### "Please provide a valid cache path"
+The storage directories need to exist. Procfile now handles this automatically.
+
+### PSR-4 Namespace Error
+Controllers are in `App\Http\Controllers\Admin` (capital A). Make sure all controllers use this namespace.
+
+### Missing Environment Variables
+Ensure all variables are set in Railway dashboard, especially `APP_KEY`.
