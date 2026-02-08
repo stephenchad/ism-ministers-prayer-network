@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install -y \
     curl \
     libcurl4-openssl-dev \
     libonig-dev \
+    libpq-dev \
     && docker-php-ext-configure gd \
     && docker-php-ext-install -j$(nproc) gd \
     && docker-php-ext-install pdo pdo_mysql pdo_pgsql zip curl json opcache \
