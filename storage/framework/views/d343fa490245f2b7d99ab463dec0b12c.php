@@ -1,0 +1,514 @@
+<?php $__env->startSection('main'); ?>
+<div class="content-wrapper">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">Homepage Sliders</h1>
+                </div>
+                <div class="col-sm-6 text-right">
+                    <button type="button" class="btn btn-primary" id="addSliderBtn">
+                        <i class="fas fa-plus"></i> Add New Slider
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="content">
+        <div class="container-fluid">
+            <?php if(session('success')): ?>
+            <div class="alert alert-success">
+                <?php echo e(session('success')); ?>
+
+            </div>
+            <?php endif; ?>
+
+            <?php if(session('error')): ?>
+            <div class="alert alert-danger">
+                <?php echo e(session('error')); ?>
+
+            </div>
+            <?php endif; ?>
+
+            <div class="card">
+                <div class="card-body">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th style="width: 50px;">Order</th>
+                                <th>Title</th>
+                                <th>Subtitle</th>
+                                <th>Button</th>
+                                <th>Image</th>
+                                <th>Status</th>
+                                <th style="width: 200px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php $__empty_1 = true; $__currentLoopData = $sliders; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $slider): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                            <tr>
+                                <td><?php echo e($slider->sort_order); ?></td>
+                                <td><?php echo e($slider->title); ?></td>
+                                <td><?php echo e($slider->subtitle ?? '-'); ?></td>
+                                <td>
+                                    <?php if($slider->button_text): ?>
+                                        <span class="badge badge-info"><?php echo e($slider->button_text); ?></span>
+                                    <?php else: ?>
+                                        -
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <?php if($slider->desktop_image): ?>
+                                        <img src="<?php echo e(asset($slider->desktop_image)); ?>" alt="" style="width: 100px; height: 50px; object-fit: cover;">
+                                    <?php else: ?>
+                                        <span class="text-muted">No image</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <?php if($slider->is_active): ?>
+                                        <span class="badge badge-success">Active</span>
+                                    <?php else: ?>
+                                        <span class="badge badge-secondary">Inactive</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-sm btn-warning edit-slider-btn" data-slider-id="<?php echo e($slider->id); ?>">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <form action="<?php echo e(route('admin.page-content.sliders.destroy', $slider->id)); ?>" method="POST" style="display: inline;">
+                                        <?php echo csrf_field(); ?>
+                                        <?php echo method_field('DELETE'); ?>
+                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this slider?')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+                            <tr>
+                                <td colspan="7" class="text-center">No sliders found. Add your first slider!</td>
+                            </tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Slider Modal -->
+<div class="custom-modal" id="addSliderModal">
+    <div class="custom-modal-backdrop" id="addSliderBackdrop"></div>
+    <div class="custom-modal-dialog">
+        <div class="custom-modal-content">
+            <div class="custom-modal-header">
+                <h5 class="custom-modal-title">Add New Slider</h5>
+                <button type="button" class="custom-modal-close" id="closeAddSliderModal">&times;</button>
+            </div>
+            <form action="<?php echo e(route('admin.page-content.sliders.store')); ?>" method="POST">
+                <?php echo csrf_field(); ?>
+                <input type="hidden" name="page" value="<?php echo e($page); ?>">
+                <div class="custom-modal-body">
+                    <div class="form-group">
+                        <label>Title *</label>
+                        <input type="text" name="title" class="form-control" placeholder="Enter slider title" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Subtitle</label>
+                        <input type="text" name="subtitle" class="form-control" placeholder="Enter slider subtitle">
+                    </div>
+                    <div class="form-group">
+                        <label>Button Text</label>
+                        <input type="text" name="button_text" class="form-control" placeholder="e.g., Join Now">
+                    </div>
+                    <div class="form-group">
+                        <label>Button URL</label>
+                        <input type="text" name="button_url" class="form-control" placeholder="e.g., /register">
+                    </div>
+                    <div class="form-group">
+                        <label>Desktop Image Path</label>
+                        <input type="text" name="desktop_image" class="form-control" placeholder="e.g., assets/images/slider/image.jpg">
+                        <small class="text-muted">Enter the path relative to public folder</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Mobile Image Path</label>
+                        <input type="text" name="mobile_image" class="form-control" placeholder="e.g., assets/images/slider/mobile.jpg">
+                        <small class="text-muted">Enter the path relative to public folder</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Sort Order</label>
+                        <input type="number" name="sort_order" class="form-control" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label class="d-flex align-items-center">
+                            <input type="checkbox" name="is_active" value="1" checked style="margin-right: 8px;">
+                            Active
+                        </label>
+                    </div>
+                </div>
+                <div class="custom-modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancelAddSliderBtn">Close</button>
+                    <button type="submit" class="btn btn-primary">Create Slider</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Slider Modals -->
+<?php $__empty_1 = true; $__currentLoopData = $sliders; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $slider): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+<div class="custom-modal" id="editSliderModal<?php echo e($slider->id); ?>">
+    <div class="custom-modal-backdrop" id="editSliderBackdrop<?php echo e($slider->id); ?>"></div>
+    <div class="custom-modal-dialog">
+        <div class="custom-modal-content">
+            <div class="custom-modal-header">
+                <h5 class="custom-modal-title">Edit Slider</h5>
+                <button type="button" class="custom-modal-close" data-slider-id="<?php echo e($slider->id); ?>">&times;</button>
+            </div>
+            <form action="<?php echo e(route('admin.page-content.sliders.update', $slider->id)); ?>" method="POST">
+                <?php echo csrf_field(); ?>
+                <?php echo method_field('PUT'); ?>
+                <div class="custom-modal-body">
+                    <div class="form-group">
+                        <label>Title *</label>
+                        <input type="text" name="title" class="form-control" value="<?php echo e($slider->title); ?>" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Subtitle</label>
+                        <input type="text" name="subtitle" class="form-control" value="<?php echo e($slider->subtitle); ?>">
+                    </div>
+                    <div class="form-group">
+                        <label>Button Text</label>
+                        <input type="text" name="button_text" class="form-control" value="<?php echo e($slider->button_text); ?>">
+                    </div>
+                    <div class="form-group">
+                        <label>Button URL</label>
+                        <input type="text" name="button_url" class="form-control" value="<?php echo e($slider->button_url); ?>">
+                    </div>
+                    <div class="form-group">
+                        <label>Desktop Image Path</label>
+                        <input type="text" name="desktop_image" class="form-control" value="<?php echo e($slider->desktop_image); ?>">
+                        <small class="text-muted">Enter the path relative to public folder</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Mobile Image Path</label>
+                        <input type="text" name="mobile_image" class="form-control" value="<?php echo e($slider->mobile_image); ?>">
+                        <small class="text-muted">Enter the path relative to public folder</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Sort Order</label>
+                        <input type="number" name="sort_order" class="form-control" value="<?php echo e($slider->sort_order); ?>">
+                    </div>
+                    <div class="form-group">
+                        <label class="d-flex align-items-center">
+                            <input type="checkbox" name="is_active" value="1" <?php echo e($slider->is_active ? 'checked' : ''); ?> style="margin-right: 8px;">
+                            Active
+                        </label>
+                    </div>
+                </div>
+                <div class="custom-modal-footer">
+                    <button type="button" class="btn btn-secondary" data-slider-id="<?php echo e($slider->id); ?>">Close</button>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+<?php endif; ?>
+
+<style>
+/* Custom Modal Styles */
+.custom-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+}
+
+.custom-modal.show {
+    display: flex;
+}
+
+.custom-modal-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.custom-modal-dialog {
+    position: relative;
+    width: 90%;
+    max-width: 500px;
+    background: var(--admin-bg-card);
+    border-radius: var(--admin-border-radius);
+    box-shadow: var(--shadow-xl);
+    border: 1px solid var(--admin-border-color);
+    z-index: 10000;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.custom-modal-content {
+    border: none;
+}
+
+.custom-modal-header {
+    padding: 20px;
+    border-bottom: 1px solid var(--admin-border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.custom-modal-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--admin-text-primary);
+    margin: 0;
+}
+
+.custom-modal-close {
+    background: transparent;
+    border: none;
+    font-size: 28px;
+    line-height: 1;
+    color: var(--admin-text-muted);
+    cursor: pointer;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--admin-border-radius-sm);
+    transition: all var(--transition-fast);
+}
+
+.custom-modal-close:hover {
+    background: var(--admin-bg-light);
+    color: var(--admin-text-primary);
+}
+
+.custom-modal-body {
+    padding: 20px;
+}
+
+.custom-modal-footer {
+    padding: 16px 20px;
+    border-top: 1px solid var(--admin-border-color);
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 500;
+    color: var(--admin-text-primary);
+}
+
+.form-group .form-control {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--admin-border-color);
+    border-radius: var(--admin-border-radius-sm);
+    background: var(--admin-bg-light);
+    color: var(--admin-text-primary);
+    font-size: 14px;
+    transition: all var(--transition-fast);
+}
+
+.form-group .form-control:focus {
+    outline: none;
+    border-color: var(--admin-primary);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-group small {
+    display: block;
+    margin-top: 4px;
+    font-size: 12px;
+}
+
+.badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.badge-info {
+    background: #17a2b8;
+    color: white;
+}
+
+.badge-success {
+    background: #28a745;
+    color: white;
+}
+
+.badge-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.btn {
+    padding: 8px 16px;
+    border-radius: var(--admin-border-radius-sm);
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: all var(--transition-fast);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--admin-primary), var(--admin-secondary));
+    color: white;
+}
+
+.btn-primary:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background: var(--admin-bg-light);
+    color: var(--admin-text-primary);
+    border: 1px solid var(--admin-border-color);
+}
+
+.btn-secondary:hover {
+    background: var(--admin-border-color);
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+.btn-warning {
+    background: #ffc107;
+    color: #212529;
+}
+
+.btn-danger {
+    background: #dc3545;
+    color: white;
+}
+
+.text-right {
+    text-align: right;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add Slider Modal
+    const addSliderBtn = document.getElementById('addSliderBtn');
+    const addSliderModal = document.getElementById('addSliderModal');
+    const closeAddSliderModal = document.getElementById('closeAddSliderModal');
+    const cancelAddSliderBtn = document.getElementById('cancelAddSliderBtn');
+    const addSliderBackdrop = document.getElementById('addSliderBackdrop');
+
+    if (addSliderBtn) {
+        addSliderBtn.addEventListener('click', function() {
+            addSliderModal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        });
+    }
+
+    function closeAddModal() {
+        addSliderModal.classList.remove('show');
+        document.body.style.overflow = '';
+    }
+
+    if (closeAddSliderModal) {
+        closeAddSliderModal.addEventListener('click', closeAddModal);
+    }
+
+    if (cancelAddSliderBtn) {
+        cancelAddSliderBtn.addEventListener('click', closeAddModal);
+    }
+
+    if (addSliderBackdrop) {
+        addSliderBackdrop.addEventListener('click', closeAddModal);
+    }
+
+    // Edit Slider Modals
+    const editSliderBtns = document.querySelectorAll('.edit-slider-btn');
+    
+    editSliderBtns.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            const sliderId = this.getAttribute('data-slider-id');
+            const modal = document.getElementById('editSliderModal' + sliderId);
+            if (modal) {
+                modal.classList.add('show');
+                document.body.style.overflow = 'hidden';
+            }
+        });
+    });
+
+    // Close edit modals
+    document.querySelectorAll('.custom-modal-close[data-slider-id]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            const sliderId = this.getAttribute('data-slider-id');
+            const modal = document.getElementById('editSliderModal' + sliderId);
+            if (modal) {
+                modal.classList.remove('show');
+                document.body.style.overflow = '';
+            }
+        });
+    });
+
+    document.querySelectorAll('.custom-modal-footer .btn-secondary[data-slider-id]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            const sliderId = this.getAttribute('data-slider-id');
+            const modal = document.getElementById('editSliderModal' + sliderId);
+            if (modal) {
+                modal.classList.remove('show');
+                document.body.style.overflow = '';
+            }
+        });
+    });
+
+    document.querySelectorAll('.custom-modal-backdrop[id^="editSliderBackdrop"]').forEach(function(backdrop) {
+        backdrop.addEventListener('click', function() {
+            const id = this.id.replace('editSliderBackdrop', '');
+            const modal = document.getElementById('editSliderModal' + id);
+            if (modal) {
+                modal.classList.remove('show');
+                document.body.style.overflow = '';
+            }
+        });
+    });
+
+    // Close modal on Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.custom-modal.show').forEach(function(modal) {
+                modal.classList.remove('show');
+            });
+            document.body.style.overflow = '';
+        }
+    });
+});
+</script>
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('admin.layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH /Applications/XAMPP/xamppfiles/htdocs/ism_ministers_prayer_network/resources/views/admin/page-content/sliders.blade.php ENDPATH**/ ?>

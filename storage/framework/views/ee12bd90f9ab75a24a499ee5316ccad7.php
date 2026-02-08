@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Group - ISM Prayer Network</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+        .sidebar {
+            background: linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 280px;
+            z-index: 1000;
+            box-shadow: 4px 0 20px rgba(0,0,0,0.1);
+        }
+        .main-content {
+            margin-left: 280px;
+            padding: 30px;
+        }
+        .sidebar .nav-link {
+            color: rgba(255,255,255,0.7);
+            padding: 18px 25px;
+            border-radius: 12px;
+            margin: 5px 15px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            transform: translateX(5px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+        .content-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            border: none;
+        }
+        .topbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 15px 50px rgba(102, 126, 234, 0.3);
+            padding: 30px;
+            margin-bottom: 40px;
+            border-radius: 25px;
+            position: relative;
+            overflow: hidden;
+        }
+        .topbar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="%23ffffff" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
+        }
+        .topbar-content {
+            position: relative;
+            z-index: 1;
+        }
+        .topbar-icon {
+            background: rgba(255,255,255,0.2);
+            border-radius: 15px;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+        }
+        .form-control {
+            border-radius: 12px;
+            border: 2px solid #e9ecef;
+            padding: 12px 16px;
+            transition: all 0.3s ease;
+        }
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        .btn {
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="p-4 text-center" style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+            <div class="mb-3">
+                <div class="bg-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                    <i class="fas fa-praying-hands text-primary" style="font-size: 24px;"></i>
+                </div>
+            </div>
+            <h5 class="text-white mb-1 fw-bold">ISM Admin</h5>
+            <small class="text-light opacity-75">Prayer Network</small>
+        </div>
+        <nav class="nav flex-column mt-3">
+            <a class="nav-link" href="<?php echo e(route('admin.dashboard')); ?>">
+                <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+            </a>
+            <a class="nav-link" href="<?php echo e(route('admin.users')); ?>">
+                <i class="fas fa-users me-2"></i> Users
+            </a>
+            <a class="nav-link active" href="<?php echo e(route('admin.groups')); ?>">
+                <i class="fas fa-users-cog me-2"></i> Groups
+            </a>
+            <a class="nav-link" href="<?php echo e(route('admin.programs')); ?>">
+                <i class="fas fa-calendar-alt me-2"></i> Programs
+            </a>
+            <a class="nav-link" href="<?php echo e(route('admin.news.index')); ?>">
+                <i class="fas fa-newspaper me-2"></i> News & Events
+            </a>
+            <hr class="border-secondary mx-3">
+            <a class="nav-link" href="<?php echo e(route('home')); ?>">
+                <i class="fas fa-globe me-2"></i> View Website
+            </a>
+            <a class="nav-link" href="<?php echo e(route('admin.logout')); ?>">
+                <i class="fas fa-sign-out-alt me-2"></i> Logout
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <div class="topbar">
+            <div class="topbar-content">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <div class="topbar-icon me-4">
+                            <i class="fas fa-edit text-white" style="font-size: 24px;"></i>
+                        </div>
+                        <div>
+                            <h3 class="mb-1 text-white fw-bold">Edit Group</h3>
+                            <p class="mb-0 text-white opacity-75">Update group information and settings</p>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-3">
+                        <a href="<?php echo e(route('admin.groups')); ?>" class="btn btn-light btn-sm">
+                            <i class="fas fa-arrow-left me-1"></i>Back to Groups
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Form -->
+        <div class="content-card p-4">
+            <?php if(Session::has('success')): ?>
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <?php echo e(Session::get('success')); ?>
+
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            <?php endif; ?>
+
+            <form id="editGroupForm" name="editGroupForm" method="POST" action="">
+                <?php echo csrf_field(); ?>
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <label for="title" class="form-label fw-bold">Group Name</label>
+                        <input type="text" name="title" id="title" value="<?php echo e($group->title); ?>" class="form-control" placeholder="Enter group name">
+                        <p class="text-danger mt-1"></p>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="country_id" class="form-label fw-bold">Country</label>
+                        <select name="country_id" id="country_id" class="form-control">
+                            <option value="">Select Country</option>
+                            <?php $__currentLoopData = $countries ?? []; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $country): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <option value="<?php echo e($country->id); ?>" <?php echo e($group->country_id == $country->id ? 'selected' : ''); ?>>
+                                    <?php echo e($country->name); ?>
+
+                                </option>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                        </select>
+                        <p class="text-danger mt-1"></p>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="city_id" class="form-label fw-bold">City</label>
+                        <select name="city_id" id="city_id" class="form-control">
+                            <option value="">Select City</option>
+                            <?php if($group->city): ?>
+                                <option value="<?php echo e($group->city->id); ?>" selected><?php echo e($group->city->name); ?></option>
+                            <?php endif; ?>
+                        </select>
+                        <p class="text-danger mt-1"></p>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="address" class="form-label fw-bold">Address</label>
+                        <input type="text" name="address" id="address" value="<?php echo e($group->address); ?>" class="form-control" placeholder="Enter address">
+                        <p class="text-danger mt-1"></p>
+                    </div>
+                    <div class="col-md-12">
+                        <label for="description" class="form-label fw-bold">Description</label>
+                        <textarea name="description" id="description" class="form-control" rows="3" placeholder="Enter description"><?php echo e($group->description); ?></textarea>
+                        <p class="text-danger mt-1"></p>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="category_name" class="form-label fw-bold">Category</label>
+                        <input type="text" name="category_name" id="category_name" value="<?php echo e($group->category->name ?? ''); ?>" class="form-control" placeholder="Enter category">
+                        <p class="text-danger mt-1"></p>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="group_type_name" class="form-label fw-bold">Group Type</label>
+                        <input type="text" name="group_type_name" id="group_type_name" value="<?php echo e($group->group_type->name ?? ''); ?>" class="form-control" placeholder="Enter group type">
+                        <p class="text-danger mt-1"></p>
+                    </div>
+                    <div class="col-12">
+                        <div class="d-flex gap-3">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Update Group
+                            </button>
+                            <a href="<?php echo e(route('admin.groups')); ?>" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        $("#editGroupForm").submit(function(e){
+            e.preventDefault();
+
+            $("button[type=submit]").prop('disabled', true);
+
+            $.ajax({
+                url: '<?php echo e(route("admin.groups.update", $group->id)); ?>',
+                type: 'PUT',
+                dataType: 'json',
+                data: $("#editGroupForm").serializeArray(),
+                success: function(response) {
+                    $("button[type=submit]").prop('disabled', false);
+
+                    if(response.status == true) {
+                        $(".form-control").removeClass('is-invalid');
+                        $("p").html('');
+                        window.location.href="<?php echo e(route('admin.groups')); ?>";
+                    } else {
+                        var errors = response.errors;
+                        $(".form-control").removeClass('is-invalid');
+                        $("p").html('');
+
+                        $.each(errors, function(key, value) {
+                            $("#" + key).addClass('is-invalid').siblings('p').html(value);
+                        });
+                    }
+                }
+            });
+        });
+
+        // Load cities when country changes
+        $('#country_id').on('change', function() {
+            const countryId = $(this).val();
+            const citySelect = $('#city_id');
+            
+            citySelect.html('<option value="">Loading cities...</option>');
+            
+            if (!countryId) {
+                citySelect.html('<option value="">Select City</option>');
+                return;
+            }
+            
+            $.ajax({
+                url: '<?php echo e(route("admin.groups.getCities")); ?>',
+                type: 'GET',
+                data: { country_id: countryId },
+                success: function(cities) {
+                    citySelect.html('<option value="">Select City</option>');
+                    cities.forEach(function(city) {
+                        citySelect.append(`<option value="${city.id}">${city.name}</option>`);
+                    });
+                },
+                error: function() {
+                    citySelect.html('<option value="">Error loading cities</option>');
+                    alert('Error loading cities. Please try again.');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+<?php /**PATH /Applications/XAMPP/xamppfiles/htdocs/ism_ministers_prayer_network/resources/views/admin/groups/edit.blade.php ENDPATH**/ ?>

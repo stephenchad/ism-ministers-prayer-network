@@ -1,0 +1,32 @@
+User-agent: *
+Allow: /
+
+# Disallow admin and account areas
+Disallow: /admin/
+Disallow: /account/
+
+# Disallow API endpoints
+Disallow: /api/
+
+# Disallow commerce endpoints
+Disallow: /commerce/
+
+# Allow public pages
+Allow: /
+Allow: /about
+Allow: /prayers
+Allow: /contact
+Allow: /groups
+Allow: /events
+Allow: /testimonies
+Allow: /programs
+Allow: /news
+Allow: /coordinators
+Allow: /stream
+Allow: /radio
+Allow: /prayer-points
+Allow: /prayer-room
+Allow: /worship-music
+
+# Sitemap
+Sitemap: https://yourdomain.com/sitemap.xml

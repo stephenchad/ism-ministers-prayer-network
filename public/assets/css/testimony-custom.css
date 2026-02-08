@@ -1,0 +1,163 @@
+/* Custom Testimony Page Styles */
+
+/* Live Testimony Section */
+.live-testimony-container {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.embed-responsive {
+    position: relative;
+    display: block;
+    width: 100%;
+    padding: 0;
+    overflow: hidden;
+}
+
+.embed-responsive-16by9 {
+    padding-bottom: 56.25%;
+}
+
+.embed-responsive-item {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    border-radius: 8px;
+}
+
+.live-status .badge {
+    font-size: 14px;
+    padding: 8px 15px;
+    border-radius: 20px;
+    background-color: #dc3545;
+    color: white;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
+/* Testimony Form Styles */
+.testimony-form {
+    background: #f8f9fa;
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.testimony-form .form-control {
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    padding: 12px 15px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.testimony-form .form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+}
+
+.testimony-form textarea.form-control {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.testimony-form .btn-primary {
+    background: linear-gradient(45deg, #007bff, #0056b3);
+    border: none;
+    padding: 12px 40px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 25px;
+    transition: all 0.3s ease;
+}
+
+.testimony-form .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,123,255,0.4);
+}
+
+/* Testimony Cards Enhancement */
+.event__card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.event__card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+}
+
+.testimonial__ratings span {
+    background: linear-gradient(45deg, #28a745, #20c997);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-left: 10px;
+}
+
+/* Counter Section Enhancement */
+.count__content {
+    transition: transform 0.3s ease;
+}
+
+.count__content:hover {
+    transform: scale(1.05);
+}
+
+.count__content-title {
+    background: linear-gradient(45deg, #007bff, #28a745);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 700;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .testimony-form {
+        padding: 20px;
+    }
+    
+    .live-testimony-container {
+        padding: 15px;
+    }
+    
+    .embed-responsive-16by9 {
+        padding-bottom: 75%;
+    }
+}
+
+/* Form Validation Styles */
+.form-control.is-invalid {
+    border-color: #dc3545;
+}
+
+.form-control.is-valid {
+    border-color: #28a745;
+}
+
+.invalid-feedback {
+    display: block;
+    color: #dc3545;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+.valid-feedback {
+    display: block;
+    color: #28a745;
+    font-size: 14px;
+    margin-top: 5px;
+}

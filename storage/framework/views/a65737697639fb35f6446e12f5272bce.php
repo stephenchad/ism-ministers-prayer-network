@@ -1,0 +1,280 @@
+<?php $__env->startSection('main'); ?>
+<style>
+.modern-hero {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 80px 0 40px;
+    color: white;
+    text-align: center;
+}
+.modern-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    padding: 30px;
+    margin-bottom: 30px;
+    transition: transform 0.3s ease;
+}
+.modern-card:hover {
+    transform: translateY(-5px);
+}
+.video-player {
+    width: 100%;
+    height: 400px;
+    border-radius: 15px;
+    background: #000;
+    position: relative;
+    overflow: hidden;
+}
+.video-player video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.channel-card {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: 2px solid transparent;
+}
+.channel-card:hover {
+    transform: translateY(-5px);
+    border-color: #667eea;
+}
+.channel-card.active {
+    border-color: #667eea;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+.live-badge {
+    background: #dc3545;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+.tab-button {
+    background: transparent;
+    border: 2px solid #667eea;
+    color: #667eea;
+    padding: 10px 25px;
+    border-radius: 25px;
+    margin: 0 10px 10px 0;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+.tab-button.active, .tab-button:hover {
+    background: #667eea;
+    color: white;
+}
+</style>
+
+<div class="modern-hero">
+    <div class="container">
+        <h1 style="font-size: 3rem; font-weight: 700; margin-bottom: 1rem;">Live Streaming</h1>
+        <p style="font-size: 1.2rem; opacity: 0.9;">Watch live events and past recordings</p>
+    </div>
+</div>
+
+<div style="padding: 60px 0; background: #f8f9fa;">
+    <div class="container">
+        <!-- Main Video Player -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <div class="modern-card">
+                    <div class="video-player">
+                        <video id="main-player" controls>
+                            <?php if($streams->isNotEmpty()): ?>
+                                <?php $firstStream = $streams->first() ?>
+                                <?php if($firstStream->format === 'hls'): ?>
+                                    <source src="<?php echo e($firstStream->stream_url); ?>" type="application/x-mpegURL">
+                                <?php else: ?>
+                                    <source src="<?php echo e($firstStream->stream_url); ?>" type="video/mp4">
+                                <?php endif; ?>
+                            <?php else: ?>
+                                <source src="https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8" type="application/x-mpegURL">
+                            <?php endif; ?>
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                    <div style="margin-top: 20px;">
+                        <h3 id="current-title" style="color: #333; margin-bottom: 10px;">
+                            <?php if($streams->isNotEmpty()): ?>
+                                Now Playing: <?php echo e($streams->first()->title); ?>
+
+                            <?php else: ?>
+                                Now Playing: Default Title
+                            <?php endif; ?>
+                        </h3>
+                        <p id="current-description" style="color: #6c757d;">
+                            <?php if($streams->isNotEmpty()): ?>
+                                <?php echo e($streams->first()->description ?? 'Default Description'); ?>
+
+                            <?php else: ?>
+                                Default Description
+                            <?php endif; ?>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Channel Tabs -->
+        <div class="row mb-4">
+            <div class="col-12 text-center">
+                <button class="tab-button active" onclick="filterChannels('all')">All Channels</button>
+                <button class="tab-button" onclick="filterChannels('live')">Live Now</button>
+                <button class="tab-button" onclick="filterChannels('prayer')">Prayer</button>
+                <button class="tab-button" onclick="filterChannels('teaching')">Teaching</button>
+            </div>
+        </div>
+
+        <!-- Channels Grid -->
+        <div class="row">
+            <?php $__empty_1 = true; $__currentLoopData = $streams; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $stream): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+            <div class="col-lg-4 col-md-6">
+                <div class="channel-card <?php echo e($stream->type); ?>" onclick="switchChannel('<?php echo e($stream->id); ?>', '<?php echo e($stream->stream_url); ?>', '<?php echo e($stream->format); ?>')">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 style="margin: 0; color: #333;"><?php echo e($stream->title); ?></h5>
+                        <?php if($stream->type === 'live'): ?>
+                            <span class="live-badge">LIVE</span>
+                        <?php endif; ?>
+                    </div>
+                    <div style="text-align: center; padding: 40px 0; background: #f8f9fa; border-radius: 10px; margin-bottom: 15px; position: relative;">
+                        <div style="font-size: 3rem; margin-bottom: 10px;">
+                            <?php if($stream->type === 'live'): ?>
+                                📺
+                            <?php else: ?>
+                                🎬
+                            <?php endif; ?>
+                        </div>
+                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(102, 126, 234, 0.9); color: white; padding: 10px; border-radius: 50%; cursor: pointer;">
+                            <i class="fas fa-play"></i>
+                        </div>
+                    </div>
+                    <p style="color: #6c757d; margin-bottom: 10px;"><?php echo e($stream->description ?? 'No description available'); ?></p>
+                    <div class="d-flex justify-content-between">
+                        <small style="color: #667eea;"><?php echo e(strtoupper($stream->format)); ?></small>
+                        <small style="color: #6c757d;"><?php echo e(ucfirst($stream->type)); ?></small>
+                    </div>
+                    <?php if($stream->scheduled_at): ?>
+                        <div class="mt-2">
+                            <small style="color: #28a745;"><i class="fas fa-calendar me-1"></i><?php echo e($stream->scheduled_at->format('M d, H:i')); ?></small>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+            <div class="col-12">
+                <div class="text-center py-5">
+                    <i class="fas fa-video" style="font-size: 4rem; color: #dee2e6; margin-bottom: 20px;"></i>
+                    <h4 style="color: #6c757d;">No streams available</h4>
+                    <p style="color: #adb5bd;">Check back later for live streams and recorded content.</p>
+                </div>
+            </div>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<script>
+const translations = <?php echo json_encode([
+    'now_playing' => 'Now Playing'
+], 15, 512) ?>;
+
+let hls = null;
+
+function filterChannels(category) {
+    const buttons = document.querySelectorAll('.tab-button');
+    const cards = document.querySelectorAll('.channel-card');
+
+    // Update active button
+    buttons.forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+
+    // Filter cards
+    cards.forEach(card => {
+        const cardElement = card.closest('.col-lg-4');
+        if (category === 'all') {
+            cardElement.style.display = 'block';
+        } else if (category === 'live') {
+            cardElement.style.display = card.classList.contains('live') ? 'block' : 'none';
+        } else {
+            cardElement.style.display = card.classList.contains(category) ? 'block' : 'none';
+        }
+    });
+}
+
+function switchChannel(streamId, streamUrl, format) {
+    const player = document.getElementById('main-player');
+    const title = document.getElementById('current-title');
+    const description = document.getElementById('current-description');
+
+    // Remove active class from all cards
+    document.querySelectorAll('.channel-card').forEach(card => {
+        card.classList.remove('active');
+    });
+
+    // Add active class to clicked card
+    event.target.closest('.channel-card').classList.add('active');
+
+    // Destroy existing HLS instance
+    if (hls) {
+        hls.destroy();
+        hls = null;
+    }
+
+    // Clear existing sources
+    player.innerHTML = '';
+
+    if (format === 'hls' && Hls.isSupported()) {
+        hls = new Hls();
+        hls.loadSource(streamUrl);
+        hls.attachMedia(player);
+        hls.on(Hls.Events.MANIFEST_PARSED, function() {
+            player.play();
+        });
+    } else if (format === 'hls' && player.canPlayType('application/vnd.apple.mpegurl')) {
+        // Fallback for Safari
+        player.src = streamUrl;
+        player.addEventListener('loadedmetadata', function() {
+            player.play();
+        });
+    } else {
+        // For other formats (url, rtmp - though rtmp may not work)
+        const source = document.createElement('source');
+        source.src = streamUrl;
+        if (format === 'hls') {
+            source.type = 'application/x-mpegURL';
+        } else {
+            source.type = 'video/mp4';
+        }
+        player.appendChild(source);
+        player.load();
+    }
+
+    // Update title and description from the card
+    const card = event.target.closest('.channel-card');
+    const cardTitle = card.querySelector('h5').textContent;
+    const cardDescription = card.querySelector('p').textContent;
+
+    title.textContent = translations.now_playing + ': ' + cardTitle;
+    description.textContent = cardDescription;
+}
+
+// Initialize the first stream on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const streams = <?php echo json_encode($streams, 15, 512) ?>;
+    if (streams.length > 0) {
+        const firstStream = streams[0];
+        switchChannel(firstStream.id, firstStream.stream_url, firstStream.format);
+    }
+});
+</script>
+
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('front.layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH /Applications/XAMPP/xamppfiles/htdocs/ism_ministers_prayer_network/resources/views/front/stream.blade.php ENDPATH**/ ?>
