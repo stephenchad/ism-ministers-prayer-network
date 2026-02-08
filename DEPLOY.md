@@ -1,130 +1,138 @@
 # Deployment Guide
 
-## Free Hosting Options for Laravel
+## ⚠️ Docker Issues? Use This Instead!
 
-### 1. Render.com (Recommended)
+If Docker/Render deployment is failing, use **000WebHost** - it's free and simpler!
 
-#### Step 1: Push to GitHub
-Your code is already on GitHub: https://github.com/stephenchad/ism-ministers-prayer-network
+---
 
-#### Step 2: Create Render Account
-1. Go to [Render.com](https://render.com) and sign up
-2. Connect your GitHub account
+## Option 1: 000WebHost (Recommended - No Docker)
 
-#### Step 3: Create Web Service
-1. Click "New +" → "Web Service"
-2. Select your repository: `stephenchad/ism-ministers-prayer-network`
-3. Configure:
-   - **Name:** ism-ministers-prayer-network
-   - **Environment:** PHP
-   - **Build Command:** `composer install --no-interaction --optimize-autoloader`
-   - **Start Command:** `php artisan serve --host=0.0.0.0 --port=$PORT`
+### Step 1: Create Account
+1. Go to [000WebHost.com](https://www.000webhost.com)
+2. Sign up for free account
 
-#### Step 4: Environment Variables
-Add these in Render Dashboard → Your Service → Environment:
+### Step 2: Create Website
+1. Click "Create New Website"
+2. Choose "Upload Website"
+3. Name your site
+
+### Step 3: Upload Files
+1. Zip these files/folders:
+   ```
+   app/
+   bootstrap/
+   config/
+   public/
+   resources/
+   routes/
+   storage/
+   artisan
+   composer.json
+   package.json
+   ```
+2. **DO NOT include:** vendor/, node_modules/, .env
+3. Upload and extract the ZIP
+
+### Step 4: Create Database
+1. Go to "MySQL Databases"
+2. Create: Database Name, User, Password
+3. Note all credentials
+
+### Step 5: Install Dependencies
+1. In 000WebHost panel, go to "Advanced" → "Terminal"
+2. Run:
+   ```bash
+   composer install --no-dev --optimize-autoloader
+   ```
+
+### Step 6: Configure .env
+1. Go to "Advanced" → "File Manager"
+2. Edit `.env` file with:
+   ```env
+   APP_NAME="ISM Ministers Prayer Network"
+   APP_ENV=production
+   APP_DEBUG=false
+   APP_URL=https://yoursite.000webhostapp.com
+   APP_KEY=base64:YOUR_KEY_HERE
+
+   DB_CONNECTION=mysql
+   DB_HOST=localhost
+   DB_PORT=3306
+   DB_DATABASE=your_db_name
+   DB_USER=your_db_user
+   DB_PASSWORD=your_db_password
+   ```
+
+### Step 7: Generate APP_KEY
+In terminal:
+```bash
+php artisan key:generate
+```
+
+### Step 8: Run Migrations
+```bash
+php artisan migrate --force
+```
+
+---
+
+## Option 2: Railway (Easy with GitHub)
+
+### Step 1: Create Railway Account
+1. Go to [Railway.app](https://railway.app)
+2. Sign up with GitHub
+
+### Step 2: Deploy
+1. Click "New Project" → "Deploy from GitHub repo"
+2. Select: `stephenchad/ism-ministers-prayer-network`
+
+### Step 3: Add Database
+1. Click "New +" → "Database" → "PostgreSQL"
+2. Wait for creation
+
+### Step 4: Configure Environment
+1. Go to your service → "Variables"
+2. Add:
+   ```env
+   APP_ENV=production
+   APP_DEBUG=false
+   APP_KEY=base64:YOUR_KEY
+   DATABASE_URL=postgres://user:pass@host:5432/db
+   ```
+
+### Step 5: Deploy
+1. Click "Deploy"
+
+---
+
+## Option 3: Render.com (Requires Docker Fixes)
+
+If you prefer Render.com, you need to manually configure in their dashboard:
+
+1. **Web Service:**
+   - Environment: PHP
+   - Build Command: `composer install --no-dev`
+   - Start Command: `php artisan serve --host=0.0.0.0 --port=$PORT`
+
+2. **Environment Variables:**
+   - Add all variables manually in Render dashboard
+
+3. **Database:**
+   - Create PostgreSQL service
+   - Connect via Environment Variables
+
+---
+
+## Quick Environment Variables Reference
 
 **Required:**
 ```env
 APP_NAME="ISM Ministers Prayer Network"
 APP_ENV=production
 APP_DEBUG=false
-APP_URL=https://your-app.onrender.com
+APP_URL=https://your-domain.com
 APP_KEY=base64:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-
-DB_CONNECTION=pgsql
-DB_HOST=xxxxx.render.com
-DB_PORT=5432
-DB_DATABASE=xxxxx
-DB_USER=xxxxx
-DB_PASSWORD=xxxxx
-```
-
-**Optional (Email & Social Login):**
-```env
-# Email (use Mailtrap for testing)
-MAIL_MAILER=smtp
-MAIL_HOST=smtp.mailtrap.io
-MAIL_PORT=2525
-MAIL_USERNAME=your_mailtrap_username
-MAIL_PASSWORD=your_mailtrap_password
-MAIL_ENCRYPTION=tls
-MAIL_FROM_ADDRESS="noreply@yourdomain.com"
-MAIL_FROM_NAME="ISM Prayer Network"
-
-# Google Login
-GOOGLE_CLIENT_ID=xxxxx.apps.googleusercontent.com
-GOOGLE_CLIENT_SECRET=xxxxx
-GOOGLE_REDIRECT_URI=https://yourdomain.com/auth/google/callback
-
-# Facebook Login
-FACEBOOK_CLIENT_ID=xxxxx
-FACEBOOK_CLIENT_SECRET=xxxxx
-FACEBOOK_REDIRECT_URI=https://yourdomain.com/auth/facebook/callback
-```
-
-#### Step 5: Create Database
-1. Click "New +" → "PostgreSQL"
-2. Name: `ism-prayer-db`
-3. Plan: Free
-4. Copy the connection details and add to Environment Variables
-
-#### Step 6: Deploy
-1. Click "Create Web Service"
-2. Wait for build to complete
-3. Visit your URL
-
----
-
-### 2. Railway.app (Easier Setup)
-
-#### Step 1: Create Railway Account
-1. Go to [Railway.app](https://railway.app) and sign up
-2. Connect GitHub
-
-#### Step 2: Deploy
-1. Click "New Project"
-2. Select "Deploy from GitHub repo"
-3. Select: `stephenchad/ism-ministers-prayer-network`
-
-#### Step 3: Add Database
-1. Click "New +" → "Database" → "PostgreSQL"
-2. Copy the connection URL
-
-#### Step 4: Configure Environment
-Add to Railway Variables:
-```env
-APP_ENV=production
-APP_DEBUG=false
-APP_KEY= (run: php artisan key:generate in local)
-DATABASE_URL=postgres://user:pass@host:5432/db
-```
-
----
-
-### 3. 000WebHost (Simplest - PHP/MySQL)
-
-#### Step 1: Create Account
-1. Go to [000WebHost.com](https://www.000webhost.com)
-2. Sign up for free
-
-#### Step 2: Upload Files
-1. In 000WebHost panel, go to "Manage Website"
-2. Click "Upload Website"
-3. Zip project files (exclude vendor, node_modules)
-4. Upload and extract
-
-#### Step 3: Create Database
-1. Go to "MySQL Databases"
-2. Create database and user
-3. Note credentials
-
-#### Step 4: Configure .env on Server
-```env
-APP_NAME="ISM Ministers Prayer Network"
-APP_ENV=production
-APP_DEBUG=false
-APP_URL=https://yoursite.000webhostapp.com
-APP_KEY=base64:xxxxx
 
 DB_CONNECTION=mysql
 DB_HOST=localhost
@@ -134,77 +142,42 @@ DB_USER=your_db_user
 DB_PASSWORD=your_db_password
 ```
 
+**Optional (Email & Social):**
+```env
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.mailtrap.io
+MAIL_PORT=2525
+MAIL_USERNAME=xxx
+MAIL_PASSWORD=xxx
+
+GOOGLE_CLIENT_ID=xxx
+GOOGLE_CLIENT_SECRET=xxx
+
+FACEBOOK_CLIENT_ID=xxx
+FACEBOOK_CLIENT_SECRET=xxx
+```
+
 ---
 
 ## After Deployment
 
-### Run Migrations
 ```bash
-php artisan migrate --force
-```
-
-### Generate APP_KEY
-```bash
-php artisan key:generate
-```
-
-### Clear Cache
-```bash
+# Clear cache
 php artisan config:clear
 php artisan cache:clear
 php artisan route:clear
-```
 
-### Set Permissions
-```bash
+# Set permissions
 chmod -R 755 storage bootstrap/cache
 ```
 
 ---
 
-## Environment Variables Reference
-
-| Variable | Required | Description |
-|----------|----------|-------------|
-| APP_NAME | Yes | Application name |
-| APP_ENV | Yes | Set to `production` |
-| APP_DEBUG | Yes | Set to `false` in production |
-| APP_URL | Yes | Your domain URL |
-| APP_KEY | Yes | Run `php artisan key:generate` |
-| DB_* | Yes | Database connection settings |
-| MAIL_* | No | Email configuration |
-| GOOGLE_CLIENT_* | No | Google OAuth |
-| FACEBOOK_CLIENT_* | No | Facebook OAuth |
-
----
-
 ## Troubleshooting
 
-### "No input file specified"
-- Check your `public` directory is set as document root
-
-### Database connection errors
-- Verify database credentials in Environment Variables
-- Ensure database host allows connections
-
-### 500 Internal Server Error
-- Check `storage/logs/laravel.log`
-- Set `APP_DEBUG=true` temporarily to see errors
-
----
-
-## Quick Deploy Script
-
-Create `deploy.sh`:
-```bash
-#!/bin/bash
-git pull origin main
-composer install --no-interaction --optimize-autoloader
-php artisan migrate --force
-php artisan config:cache
-php artisan route:cache
-php artisan view:clear
-echo "Deployment complete!"
-```
-
-Run: `chmod +x deploy.sh`
+| Error | Solution |
+|-------|----------|
+| "No input file specified" | Set public/ as document root |
+| Database connection error | Check DB credentials in .env |
+| 500 Internal Server Error | Check storage/logs/laravel.log |
+| Composer memory error | Use `--no-dev` flag |
