@@ -1,89 +1,185 @@
 # Deployment Guide for ISM Ministers Prayer Network
 
-## Render.com Free Tier Deployment
+## Option 1: Vercel (Free Tier)
 
 ### Prerequisites
-- GitHub account with repository: https://github.com/stephenchad/ism-ministers-prayer-network
-- Free Render.com account
+- Vercel account (sign up with GitHub)
+- GitHub repository: https://github.com/stephenchad/ism-ministers-prayer-network
 
-### Step 1: Create Render Account
+### ⚠️ Limitations of Vercel with Laravel
+- **No persistent file storage** (uploads won't persist)
+- **No PostgreSQL database** (need external database)
+- **No cron jobs**
+- Best for **static/demo sites**
 
-1. Go to [render.com](https://render.com) and sign up with GitHub
-2. Verify your email
+### Step 1: Create Vercel Account
+1. Go to [vercel.com](https://vercel.com)
+2. Sign up with **GitHub**
+3. Verify email
 
-### Step 2: Create New Web Service
-
-1. Click **"New +"** → **"Web Service"**
-2. Connect your GitHub repository
+### Step 2: Import Project
+1. Click **"Add New..."** → **"Project"**
+2. Import your GitHub repo
 3. Configure:
-   - **Name**: `ism-prayer-network`
-   - **Environment**: `PHP`
-   - **Build Command**: (leave empty - uses render.yaml)
-   - **Start Command**: (leave empty - uses render.yaml)
-4. Click **"Create Web Service"**
+   - **Framework Preset**: `Other`
+   - **Build Command**: (leave empty)
+   - **Output Directory**: `public`
+4. Click **"Deploy"**
 
-### Step 3: Add PostgreSQL Database
-
-1. Click **"New +"** → **"PostgreSQL"**
-2. Configure:
-   - **Name**: `ism-prayer-db`
-   - **Plan**: `Free`
-   - **Region**: `Ohio` (or nearest to you)
-3. Click **"Create Database"**
-
-### Step 4: Connect Database to Web Service
-
-1. Go to your **Web Service** → **"Environment"** tab
-2. Add these variables (delete duplicates):
+### Step 3: Add Environment Variables
+1. Go to **Settings** → **Environment Variables**
+2. Add:
    ```
    APP_NAME=ISM Ministers Prayer Network
    APP_ENV=production
    APP_DEBUG=false
-   APP_KEY= (click "Generate" button)
-   ```
-3. For database connection, Render auto-links them. Add:
-   ```
+   APP_KEY= (run `php artisan key:generate` locally, paste here)
    DB_CONNECTION=pgsql
-   DB_HOST= (from PostgreSQL service - Internal URL)
-   DB_PORT=5432
-   DB_DATABASE= (from PostgreSQL service)
-   DB_USER= (from PostgreSQL service)
-   DB_PASSWORD= (from PostgreSQL service)
    ```
 
-### Step 5: Deploy
-
-1. Go to your **Web Service**
-2. Click **"Deploy"** (manual) or wait for auto-deploy
-3. Watch **"Logs"** for progress
-
-### Step 6: Run Database Migration
-
-1. Click **"Shell"** in your web service
-2. Run:
-   ```bash
-   php artisan migrate --force
-   ```
-
-### Step 7: Visit Your App
-
-1. Click the **URL** shown in your web service (e.g., `https://ism-prayer-network.onrender.com`)
+### ⚠️ Important: Database Required
+Vercel doesn't provide databases. Use:
+- **Neon** (free PostgreSQL)
+- **Supabase** (free PostgreSQL)
+- **Railway** (PostgreSQL - had free tier)
 
 ---
 
-## Troubleshooting
+## Option 2: Coolify (Self-Hosted Free)
 
-### "Please provide a valid cache path"
-Fixed by the `mkdir` commands in render.yaml build command.
+Coolify is open-source, you host it on your own server.
 
-### Database connection failed
-Ensure `DB_*` variables match your PostgreSQL service's Internal URL.
+### Prerequisites
+- VPS server ($4-10/month) from DigitalOcean, Hetzner, Linode
+- SSH access to server
 
-### 500 Error
-Check logs in Render dashboard. Common issues:
-- Missing APP_KEY
-- Database not migrated
-- Storage permissions
+### Installation
+```bash
+# SSH into your server
+ssh root@your-server-ip
+
+# Install Coolify
+bash <(curl -fsSL get.coolify.io)
+```
+
+### Setup
+1. Access Coolify at `https://your-server-ip`
+2. Create admin account
+3. Click **"Add New Project"**
+4. Import from GitHub
+5. Configure:
+   - **Type**: Laravel (PHP)
+   - **Database**: PostgreSQL
+   - **Domains**: your-domain.com
+
+---
+
+## Option 3: DigitalOcean VPS ($4/month)
+
+### Step 1: Create Droplet
+1. Go to [digitalocean.com](https://digitalocean.com)
+2. Create **"Droplet"**
+3. Choose:
+   - **Image**: Ubuntu 22.04 LTS
+   - **Size**: Basic ($4/month - 1GB RAM)
+   - **Region**: Near your users
+
+### Step 2: Connect via SSH
+```bash
+ssh root@your-droplet-ip
+```
+
+### Step 3: Install Laravel Stack
+```bash
+# Update
+apt update && apt upgrade -y
+
+# Install Nginx
+apt install nginx -y
+
+# Install PHP 8.2
+apt install software-properties-common -y
+add-apt-repository ppa:ondrej/php -y
+apt update
+apt install php8.2 php8.2-fpm php8.2-mbstring php8.2-xml php8.2-curl php8.2-pgsql php8.2-redis -y
+
+# Install PostgreSQL
+apt install postgresql postgresql-contrib -y
+
+# Install Composer
+curl -sS https://getcomposer.org/installer | php
+mv composer.phar /usr/local/bin/composer
+
+# Install Git
+apt install git -y
+```
+
+### Step 4: Configure Laravel
+```bash
+# Create directory
+mkdir -p /var/www/ism-prayer
+cd /var/www/ism-prayer
+
+# Clone repo
+git clone https://github.com/stephenchad/ism-ministers-prayer-network.git .
+
+# Install dependencies
+composer install --no-interaction --prefer-dist --optimize-autoloader
+
+# Copy env file
+cp .env.example .env
+php artisan key:generate
+
+# Configure .env for PostgreSQL
+nano .env
+# Update DB_* variables
+
+# Run migrations
+php artisan migrate --force
+
+# Set permissions
+chmod -R 775 storage bootstrap/cache
+chown -R www-data:www-data /var/www/ism-prayer
+```
+
+### Step 5: Configure Nginx
+```bash
+nano /etc/nginx/sites-available/ism-prayer
+```
+
+Add configuration:
+```nginx
+server {
+    listen 80;
+    server_name your-domain.com;
+    root /var/www/ism-prayer/public;
+    index index.php;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:/run/php/php8.2-fpm.sock;
+    }
+
+    location ~ /\.ht {
+        deny all;
+    }
+}
+```
+
+```bash
+# Enable site
+ln -s /etc/nginx/sites-available/ism-prayer /etc/nginx/sites-enabled/
+nginx -t
+systemctl reload nginx
+
+# Setup SSL (optional)
+apt install certbot python3-certbot-nginx
+certbot --nginx -d your-domain.com
+```
 
 ---
 
@@ -96,22 +192,4 @@ cp .env.example .env
 php artisan key:generate
 php artisan migrate:fresh --seed
 php artisan serve
-```
-
----
-
-## Useful Commands
-
-```bash
-# Clear all caches
-php artisan config:clear
-php artisan cache:clear
-php artisan route:clear
-php artisan view:clear
-
-# Recreate storage links
-php artisan storage:link
-
-# Seed database
-php artisan db:seed
 ```
