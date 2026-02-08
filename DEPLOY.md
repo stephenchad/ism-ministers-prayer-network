@@ -20,31 +20,58 @@ Your code is already on GitHub: https://github.com/stephenchad/ism-ministers-pra
    - **Build Command:** `composer install --no-interaction --optimize-autoloader`
    - **Start Command:** `php artisan serve --host=0.0.0.0 --port=$PORT`
 
-#### Step 4: Add Environment Variables
-In Render dashboard, add:
-```
+#### Step 4: Environment Variables
+Add these in Render Dashboard → Your Service → Environment:
+
+**Required:**
+```env
+APP_NAME="ISM Ministers Prayer Network"
 APP_ENV=production
 APP_DEBUG=false
-APP_KEY= (click "Generate" button)
-APP_URL= (your Render URL)
+APP_URL=https://your-app.onrender.com
+APP_KEY=base64:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+DB_CONNECTION=pgsql
+DB_HOST=xxxxx.render.com
+DB_PORT=5432
+DB_DATABASE=xxxxx
+DB_USER=xxxxx
+DB_PASSWORD=xxxxx
+```
+
+**Optional (Email & Social Login):**
+```env
+# Email (use Mailtrap for testing)
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.mailtrap.io
+MAIL_PORT=2525
+MAIL_USERNAME=your_mailtrap_username
+MAIL_PASSWORD=your_mailtrap_password
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS="noreply@yourdomain.com"
+MAIL_FROM_NAME="ISM Prayer Network"
+
+# Google Login
+GOOGLE_CLIENT_ID=xxxxx.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=xxxxx
+GOOGLE_REDIRECT_URI=https://yourdomain.com/auth/google/callback
+
+# Facebook Login
+FACEBOOK_CLIENT_ID=xxxxx
+FACEBOOK_CLIENT_SECRET=xxxxx
+FACEBOOK_REDIRECT_URI=https://yourdomain.com/auth/facebook/callback
 ```
 
 #### Step 5: Create Database
 1. Click "New +" → "PostgreSQL"
 2. Name: `ism-prayer-db`
 3. Plan: Free
-4. Copy the connection details
+4. Copy the connection details and add to Environment Variables
 
-#### Step 6: Connect Database
-1. Go to your Web Service → "Environment"
-2. Add database variables:
-```
-DB_CONNECTION=pgsql
-DB_DATABASE= (from PostgreSQL)
-DB_HOST= (from PostgreSQL)
-DB_USERNAME= (from PostgreSQL)
-DB_PASSWORD= (from PostgreSQL)
-```
+#### Step 6: Deploy
+1. Click "Create Web Service"
+2. Wait for build to complete
+3. Visit your URL
 
 ---
 
@@ -64,13 +91,12 @@ DB_PASSWORD= (from PostgreSQL)
 2. Copy the connection URL
 
 #### Step 4: Configure Environment
-1. Go to your service → "Variables"
-2. Add:
-```
+Add to Railway Variables:
+```env
 APP_ENV=production
 APP_DEBUG=false
-APP_KEY= (run: php artisan key:generate)
-DATABASE_URL= (from PostgreSQL)
+APP_KEY= (run: php artisan key:generate in local)
+DATABASE_URL=postgres://user:pass@host:5432/db
 ```
 
 ---
@@ -84,42 +110,71 @@ DATABASE_URL= (from PostgreSQL)
 #### Step 2: Upload Files
 1. In 000WebHost panel, go to "Manage Website"
 2. Click "Upload Website"
-3. Zip your project files (exclude vendor, node_modules)
+3. Zip project files (exclude vendor, node_modules)
 4. Upload and extract
 
 #### Step 3: Create Database
 1. Go to "MySQL Databases"
 2. Create database and user
-3. Note the credentials
+3. Note credentials
 
-#### Step 4: Configure .env
-Edit `.env` file on server with your database details
+#### Step 4: Configure .env on Server
+```env
+APP_NAME="ISM Ministers Prayer Network"
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://yoursite.000webhostapp.com
+APP_KEY=base64:xxxxx
+
+DB_CONNECTION=mysql
+DB_HOST=localhost
+DB_PORT=3306
+DB_DATABASE=your_db_name
+DB_USER=your_db_user
+DB_PASSWORD=your_db_password
+```
 
 ---
 
 ## After Deployment
 
-### 1. Run Migrations
+### Run Migrations
 ```bash
 php artisan migrate --force
 ```
 
-### 2. Generate APP_KEY (if not set)
+### Generate APP_KEY
 ```bash
 php artisan key:generate
 ```
 
-### 3. Clear Cache
+### Clear Cache
 ```bash
 php artisan config:clear
 php artisan cache:clear
 php artisan route:clear
 ```
 
-### 4. Set File Permissions
+### Set Permissions
 ```bash
 chmod -R 755 storage bootstrap/cache
 ```
+
+---
+
+## Environment Variables Reference
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| APP_NAME | Yes | Application name |
+| APP_ENV | Yes | Set to `production` |
+| APP_DEBUG | Yes | Set to `false` in production |
+| APP_URL | Yes | Your domain URL |
+| APP_KEY | Yes | Run `php artisan key:generate` |
+| DB_* | Yes | Database connection settings |
+| MAIL_* | No | Email configuration |
+| GOOGLE_CLIENT_* | No | Google OAuth |
+| FACEBOOK_CLIENT_* | No | Facebook OAuth |
 
 ---
 
@@ -129,7 +184,7 @@ chmod -R 755 storage bootstrap/cache
 - Check your `public` directory is set as document root
 
 ### Database connection errors
-- Verify database credentials in `.env`
+- Verify database credentials in Environment Variables
 - Ensure database host allows connections
 
 ### 500 Internal Server Error
@@ -138,7 +193,7 @@ chmod -R 755 storage bootstrap/cache
 
 ---
 
-## Recommended: Use Deploy Script
+## Quick Deploy Script
 
 Create `deploy.sh`:
 ```bash
@@ -152,4 +207,4 @@ php artisan view:clear
 echo "Deployment complete!"
 ```
 
-Make executable: `chmod +x deploy.sh`
+Run: `chmod +x deploy.sh`
