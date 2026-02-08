@@ -10,21 +10,28 @@ RUN apt-get update && apt-get install -y \
     libfreetype6-dev \
     git \
     curl \
+    libcurl4-openssl-dev \
+    libonig-dev \
     && docker-php-ext-configure gd \
     && docker-php-ext-install -j$(nproc) gd \
-    && docker-php-ext-install pdo pdo_mysql zip
+    && docker-php-ext-install pdo pdo_mysql pdo_pgsql zip curl json opcache \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install Composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 # Set working directory
 WORKDIR /var/www/html
 
-# Copy application files
-COPY . /var/www/html
+# Copy composer files first (for better caching)
+COPY composer.json composer.lock* ./
 
-# Install PHP dependencies
-RUN composer install --no-interaction --optimize-autoloader --no-dev
+# Install dependencies (without dev for production)
+RUN composer install --no-interaction --no-dev --prefer-dist --optimize-autoloader || composer install --no-interaction --prefer-dist --optimize-autoloader
+
+# Copy application files
+COPY . .
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \
